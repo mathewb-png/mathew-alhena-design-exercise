@@ -454,7 +454,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       {
         id: 7,
         icon: Rocket,
-        label: "Launch Alhena",
+        label: "Launch",
         description: "Deploy to your storefront with a controlled rollout",
         status: step7Status,
         progress: launched ? 100 : 0,

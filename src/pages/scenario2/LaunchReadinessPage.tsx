@@ -273,18 +273,18 @@ export function LaunchReadinessPage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-success-50 rounded-2xl border border-success-200 px-6 py-4 flex items-center gap-4"
+          className="rounded-2xl border border-success-300 bg-success-500/10 px-6 py-4 flex items-center gap-4"
         >
-          <Rocket size={16} className="text-success-600 shrink-0" />
+          <Rocket size={16} className="text-success-500 shrink-0" />
           <div className="flex-1">
-            <p className="text-[0.875rem] text-success-800">
+            <p className="text-[0.875rem] text-surface-900">
               <strong>Alhena is live!</strong>{" "}
               Your AI assistant is now serving customers on your storefront. Dashboards will populate with real data within 48 hours.
             </p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <span className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
-            <span className="text-xs font-semibold text-success-600">Live</span>
+            <span className="text-xs font-semibold text-success-500">Live</span>
           </div>
         </motion.div>
       )}
