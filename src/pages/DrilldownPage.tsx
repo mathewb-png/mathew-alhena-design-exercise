@@ -1,18 +1,23 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { TopBar } from "../components/layout/TopBar";
+import { CollapsibleSection } from "../components/layout/CollapsibleSection";
 import { MetricCard } from "../components/dashboard/MetricCard";
 import { DrilldownChart } from "../components/drilldown/DrilldownChart";
 import { BreakdownBar } from "../components/drilldown/BreakdownBar";
 import { AiExplanation } from "../components/drilldown/AiExplanation";
 import { ActionList } from "../components/dashboard/ActionList";
+import { Toast } from "../components/common/Toast";
+import { useToast } from "../hooks/useToast";
+import { useTheme } from "../context/ThemeContext";
 import { escalationDrilldown } from "../data/drilldown";
 import { actionItems } from "../data/insights";
 import { metrics } from "../data/metrics";
 
 export function DrilldownPage() {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
+  const toast = useToast();
   const { metric, timeSeries, breakdowns, aiExplanation } =
     escalationDrilldown;
 
@@ -24,57 +29,94 @@ export function DrilldownPage() {
     ["action_1", "action_2"].includes(a.id)
   );
 
+  const handleMetricClick = () => {
+    toast.show("Opening detailed metric view...");
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <button
-          onClick={() => navigate("/")}
-          className="inline-flex items-center gap-1.5 text-sm text-surface-500 hover:text-surface-700 transition-colors mb-4"
+          onClick={() => navigate("/scenario-1")}
+          className="inline-flex items-center gap-2 text-sm font-medium text-surface-600 hover:text-surface-900 transition-colors mb-4"
         >
-          <ArrowLeft size={15} />
+          <ArrowLeft size={16} />
           Back to Dashboard
         </button>
         <TopBar
           title="Escalation Analysis"
           subtitle="Deep dive into what's driving the 21% escalation increase"
+          onPeriodChange={(p) => {
+            toast.show(`Showing data for ${p === "7d" ? "last 7 days" : p === "30d" ? "last 30 days" : "last 90 days"}`);
+          }}
+          onExport={(format) => {
+            toast.show(format === "pdf" ? "Exporting escalation report as PDF..." : "Exporting escalation data as CSV...");
+          }}
+          onShare={(method) => {
+            if (method === "copy") {
+              toast.show("Analysis link copied to clipboard");
+            } else {
+              toast.show("Escalation report sent to your inbox");
+            }
+          }}
         />
       </div>
 
-      {/* Metric summary row */}
-      <div className="grid grid-cols-3 gap-4">
-        <MetricCard metric={metric} index={0} />
-        {relatedMetrics.map((m, i) => (
-          <MetricCard key={m.id} metric={m} index={i + 1} />
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
-        <DrilldownChart
-          data={timeSeries}
-          color="#ef4444"
-          title="Escalation Volume Trend"
-          format={(v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}K` : String(v))}
-        />
-        <BreakdownBar breakdowns={breakdowns} />
-      </div>
-
-      <AiExplanation
-        summary={aiExplanation.summary}
-        factors={aiExplanation.factors}
-        methodology={aiExplanation.methodology}
-      />
-
-      {/* Related actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+      {/* Key metrics */}
+      <CollapsibleSection
+        title="Key metrics"
+        titleRight={<span>vs. prior 30 days</span>}
       >
-        <h2 className="text-sm font-bold uppercase tracking-wider text-surface-400 mb-4">
-          Suggested actions for this issue
-        </h2>
-        <ActionList actions={relatedActions} />
-      </motion.div>
+        <div className="grid grid-cols-3 gap-5">
+          <MetricCard metric={metric} index={0} onClick={handleMetricClick} />
+          {relatedMetrics.map((m, i) => (
+            <MetricCard
+              key={m.id}
+              metric={m}
+              index={i + 1}
+              onClick={handleMetricClick}
+            />
+          ))}
+        </div>
+      </CollapsibleSection>
+
+      {/* Trend and breakdown */}
+      <CollapsibleSection title="Trend and breakdown">
+        <div className="grid grid-cols-2 gap-6">
+          <DrilldownChart
+            data={timeSeries}
+            color={darkMode ? "#f87171" : "#dc2626"}
+            title="Escalation Volume Trend"
+            format={(v) =>
+              v >= 1000 ? `${(v / 1000).toFixed(1)}K` : String(v)
+            }
+          />
+          <BreakdownBar breakdowns={breakdowns} />
+        </div>
+      </CollapsibleSection>
+
+      {/* Merged: AI analysis + recommended actions */}
+      <CollapsibleSection title="Analysis & recommended actions">
+        <div className="space-y-6">
+          <AiExplanation
+            summary={aiExplanation.summary}
+            factors={aiExplanation.factors}
+            methodology={aiExplanation.methodology}
+          />
+          <div className="flex items-center gap-2 pt-2">
+            <div className="h-px flex-1 bg-surface-200" />
+            <span className="text-xs font-bold uppercase tracking-wider text-surface-500 shrink-0">Recommended next steps</span>
+            <div className="h-px flex-1 bg-surface-200" />
+          </div>
+          <ActionList actions={relatedActions} />
+        </div>
+      </CollapsibleSection>
+
+      <Toast
+        message={toast.message}
+        visible={toast.visible}
+        onClose={toast.hide}
+      />
     </div>
   );
 }

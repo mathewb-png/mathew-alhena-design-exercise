@@ -8,10 +8,10 @@ import {
   HelpCircle,
   LogOut,
   ChevronLeft,
-  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import { clsx } from "clsx";
+import { AlhenaLogo } from "../brand/AlhenaLogo";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -31,30 +31,25 @@ export function Sidebar() {
   return (
     <aside
       className={clsx(
-        "fixed left-0 top-0 h-screen bg-surface-900 text-white flex flex-col z-50 transition-all duration-300",
+        "fixed left-0 top-0 h-screen bg-surface-0 border-r border-surface-200 flex flex-col z-50 transition-all duration-300",
         collapsed ? "w-[68px]" : "w-[240px]"
       )}
     >
-      <div className="flex items-center gap-3 px-5 h-16 border-b border-white/10">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-alhena-400 to-alhena-600 flex items-center justify-center shrink-0">
-          <Sparkles size={18} className="text-white" />
+      <div className="flex items-center gap-3 px-5 h-16 border-b border-surface-100">
+        <div className="shrink-0">
+          <AlhenaLogo collapsed={collapsed} />
         </div>
-        {!collapsed && (
-          <span className="font-semibold text-[15px] tracking-tight">
-            Alhena
-          </span>
-        )}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className={clsx(
-            "ml-auto p-1.5 rounded-md hover:bg-white/10 transition-colors",
+            "ml-auto p-1.5 rounded-md hover:bg-surface-100 transition-colors",
             collapsed && "ml-0"
           )}
         >
           <ChevronLeft
             size={16}
             className={clsx(
-              "transition-transform duration-300",
+              "text-surface-400 transition-transform duration-300",
               collapsed && "rotate-180"
             )}
           />
@@ -71,8 +66,8 @@ export function Sidebar() {
               clsx(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-alhena-600/30 text-alhena-300"
-                  : "text-surface-400 hover:text-white hover:bg-white/5"
+                  ? "bg-alhena-50 text-alhena-500"
+                  : "text-surface-500 hover:text-surface-900 hover:bg-surface-50"
               )
             }
           >
@@ -82,30 +77,30 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="py-4 px-3 border-t border-white/10 space-y-1">
+      <div className="py-4 px-3 border-t border-surface-100 space-y-1">
         {bottomItems.map((item) => (
           <button
             key={item.label}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-surface-400 hover:text-white hover:bg-white/5 transition-all duration-200 w-full"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-surface-400 hover:text-surface-700 hover:bg-surface-50 transition-all duration-200 w-full"
           >
             <item.icon size={20} className="shrink-0" />
             {!collapsed && <span>{item.label}</span>}
           </button>
         ))}
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-surface-400 hover:text-danger-500 hover:bg-danger-500/10 transition-all duration-200 w-full">
+        <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-surface-400 hover:text-danger-500 hover:bg-danger-50 transition-all duration-200 w-full">
           <LogOut size={20} className="shrink-0" />
           {!collapsed && <span>Sign out</span>}
         </button>
       </div>
 
       {!collapsed && (
-        <div className="px-4 py-4 border-t border-white/10">
+        <div className="px-4 py-4 border-t border-surface-100">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-alhena-500/30 flex items-center justify-center text-xs font-semibold text-alhena-300">
+            <div className="w-8 h-8 rounded-full bg-alhena-50 flex items-center justify-center text-xs font-semibold text-alhena-500">
               AC
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white truncate">
+              <p className="text-sm font-medium text-surface-900 truncate">
                 Acme Commerce
               </p>
               <p className="text-xs text-surface-400 truncate">Enterprise</p>

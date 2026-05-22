@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, Users, MessageSquare, Zap } from "lucide-react";
+import { ArrowRight, Users, MessageSquare, Zap, Sparkles } from "lucide-react";
+import { AlhenaLogo } from "../components/brand/AlhenaLogo";
 import { TopBar } from "../components/layout/TopBar";
 import { SetupProgress } from "../components/onboarding/SetupProgress";
 import { PreviewCard } from "../components/onboarding/PreviewCard";
@@ -67,7 +68,7 @@ export function OnboardingPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gradient-to-br from-alhena-600 via-alhena-700 to-alhena-900 rounded-2xl p-8 text-white relative overflow-hidden"
+        className="bg-gradient-to-br from-alhena-500 via-alhena-600 to-alhena-800 rounded-2xl p-8 text-white relative overflow-hidden"
       >
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
@@ -75,7 +76,7 @@ export function OnboardingPage() {
         <div className="relative">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center">
-              <Sparkles size={24} className="text-alhena-200" />
+              <AlhenaLogo collapsed />
             </div>
             <div>
               <h2 className="text-xl font-bold">

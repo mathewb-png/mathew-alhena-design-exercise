@@ -1,87 +1,94 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  AlertTriangle,
-  AlertOctagon,
-  ShieldAlert,
   ArrowRight,
   Clock,
-  Eye,
   CheckCircle2,
   Sparkles,
-  HelpCircle,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { TopBar } from "../components/layout/TopBar";
-import { riskSignals } from "../data/insights";
+import { CollapsibleSection } from "../components/layout/CollapsibleSection";
+import { Toast } from "../components/common/Toast";
+import { useToast } from "../hooks/useToast";
 
 const anomalyStates = [
   {
-    id: "anomaly_1",
-    type: "data_conflict" as const,
-    icon: ShieldAlert,
-    severity: "high" as const,
-    title: "Return policy content conflict detected",
-    description:
-      "Alhena found conflicting return policy information between your help center (14-day return window) and Shopify policy page (30-day return window). This may cause inconsistent answers.",
-    confidence: "low" as const,
-    affectedMetric: "~8% of conversations touch return policy",
-    detectedAt: "2 days ago",
-    suggestedAction: "Reconcile return policy sources",
-    details: [
-      "Help center states: '14-day return window for all products'",
-      "Shopify policy page states: '30-day return window for unused items'",
-      "Alhena is currently using the help center version (last updated: April 12)",
-      "23 escalations in the last 7 days cited conflicting return information",
-    ],
-  },
-  {
     id: "anomaly_2",
-    type: "metric_anomaly" as const,
-    icon: AlertTriangle,
     severity: "critical" as const,
     title: "Subscription cancellation escalations spiking",
     description:
-      "Subscription cancellation escalations increased 45% in the last 14 days, significantly outpacing overall escalation growth (+21%). The current AI response flow does not offer retention options.",
+      "Cancellation escalations up 45% in 14 days, outpacing overall growth (+21%). No retention options in AI flow.",
     confidence: "high" as const,
     affectedMetric: "1,680 escalations (30% of total)",
     detectedAt: "3 days ago",
-    suggestedAction: "Update cancellation flow with retention offers",
+    suggestedAction: "Add retention flow",
     details: [
-      "45% increase vs. 21% overall escalation increase",
+      "45% increase vs. 21% overall escalation growth",
       "No self-service cancellation path exists",
-      "Average time to agent: 12 minutes (up from 8 minutes)",
-      "Competitor benchmark: 60% of cancellations handled by AI with retention offers",
+      "Avg time to agent: 12 min (was 8 min)",
+    ],
+  },
+  {
+    id: "anomaly_1",
+    severity: "high" as const,
+    title: "Return policy content conflict detected",
+    description:
+      "Conflicting return policy between help center (14-day) and Shopify (30-day) may cause inconsistent answers.",
+    confidence: "low" as const,
+    affectedMetric: "~8% of conversations",
+    detectedAt: "2 days ago",
+    suggestedAction: "Reconcile sources",
+    details: [
+      "Help center: 14-day return window",
+      "Shopify page: 30-day return window",
+      "23 escalations in last 7 days from conflicting info",
     ],
   },
 ];
 
-const severityStyles = {
+const severityConfig = {
   critical: {
-    bg: "bg-danger-50",
-    border: "border-danger-200",
-    iconBg: "bg-danger-500",
-    badge: "bg-danger-100 text-danger-700",
-    ring: "ring-danger-500/20",
+    dot: "bg-danger-500",
+    badge: "text-danger-700",
+    left: "border-l-danger-500",
   },
   high: {
-    bg: "bg-warning-50",
-    border: "border-warning-200",
-    iconBg: "bg-warning-500",
-    badge: "bg-warning-100 text-warning-700",
-    ring: "ring-warning-500/20",
+    dot: "bg-warning-500",
+    badge: "text-warning-700",
+    left: "border-l-warning-500",
   },
 };
 
-const confidenceExplanations = {
-  high: "Based on strong statistical evidence across multiple data points.",
-  medium:
-    "Based on moderate evidence. Some contributing factors are inferred.",
-  low: "Based on limited or indirect evidence. Verify before acting.",
+const confidenceConfig = {
+  high: "text-success-700",
+  medium: "text-warning-700",
+  low: "text-danger-700",
 };
 
 export function AnomalyPage() {
+  const navigate = useNavigate();
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+  const [actionedIds, setActionedIds] = useState<Set<string>>(new Set());
+  const toast = useToast();
+
+  const handleAction = (anomalyId: string) => {
+    setActionedIds((prev) => new Set(prev).add(anomalyId));
+    toast.show("Task created in your workflow");
+  };
+
+  const handleDismiss = (anomalyId: string) => {
+    setDismissedIds((prev) => new Set(prev).add(anomalyId));
+    toast.show("Alert dismissed");
+  };
+
+  const visibleAnomalies = anomalyStates.filter(
+    (a) => !dismissedIds.has(a.id)
+  );
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <TopBar
         title="Alerts & Anomalies"
         subtitle="Issues that need your attention"
@@ -89,177 +96,179 @@ export function AnomalyPage() {
       />
 
       {/* Active alerts */}
-      <section className="space-y-4">
-        {anomalyStates.map((anomaly, i) => {
-          const style =
-            severityStyles[anomaly.severity as keyof typeof severityStyles];
-          const Icon = anomaly.icon;
+      <CollapsibleSection
+        title="Active alerts"
+        titleRight={<span>{visibleAnomalies.length} issues</span>}
+      >
+        <div className="space-y-4">
+          <AnimatePresence mode="popLayout">
+            {visibleAnomalies.map((anomaly, i) => {
+              const cfg =
+                severityConfig[
+                  anomaly.severity as keyof typeof severityConfig
+                ];
+              const isActioned = actionedIds.has(anomaly.id);
 
-          return (
-            <motion.div
-              key={anomaly.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className={clsx(
-                "rounded-2xl border-2 p-6 ring-4",
-                style.border,
-                style.bg,
-                style.ring
-              )}
-            >
-              <div className="flex items-start gap-4">
-                <div
+              return (
+                <motion.article
+                  key={anomaly.id}
+                  layout
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -80, height: 0, marginBottom: 0 }}
+                  transition={{ duration: 0.3, delay: i * 0.1 }}
                   className={clsx(
-                    "w-11 h-11 rounded-xl flex items-center justify-center shrink-0",
-                    style.iconBg
+                    "bg-surface-0 rounded-xl border border-surface-200 border-l-4 overflow-hidden",
+                    cfg.left
                   )}
                 >
-                  <Icon size={22} className="text-white" />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span
-                      className={clsx(
-                        "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
-                        style.badge
-                      )}
-                    >
-                      {anomaly.severity}
-                    </span>
-                    <span className="text-[10px] text-surface-400 flex items-center gap-1">
-                      <Clock size={10} />
-                      Detected {anomaly.detectedAt}
-                    </span>
-                  </div>
-
-                  <h3 className="text-base font-semibold text-surface-900 mb-2">
-                    {anomaly.title}
-                  </h3>
-
-                  <p className="text-sm text-surface-600 leading-relaxed mb-4">
-                    {anomaly.description}
-                  </p>
-
-                  {/* Evidence */}
-                  <div className="bg-white/60 rounded-xl p-4 border border-black/5 mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Eye size={13} className="text-surface-400" />
-                      <span className="text-xs font-semibold text-surface-600">
-                        Evidence
+                  <div className="px-5 py-4">
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <span
+                        className={clsx(
+                          "text-xs font-bold uppercase tracking-wider",
+                          cfg.dot === "bg-danger-500"
+                            ? "text-danger-700"
+                            : "text-warning-700"
+                        )}
+                      >
+                        {anomaly.severity}
+                      </span>
+                      <span className="text-sm text-surface-500 flex items-center gap-1">
+                        <Clock size={13} />
+                        {anomaly.detectedAt}
+                      </span>
+                      <span
+                        className={clsx(
+                          "text-xs font-bold uppercase tracking-wider ml-auto",
+                          confidenceConfig[anomaly.confidence]
+                        )}
+                      >
+                        {anomaly.confidence} confidence
                       </span>
                     </div>
-                    <ul className="space-y-1.5">
+
+                    <button
+                      onClick={() => navigate("/scenario-1/drilldown")}
+                      className="text-left group"
+                    >
+                      <h3 className="text-[0.9375rem] font-bold text-surface-900 mb-1 group-hover:text-alhena-600 transition-colors">
+                        {anomaly.title}
+                      </h3>
+                    </button>
+                    <p className="text-sm text-surface-600 mb-3">
+                      {anomaly.description}
+                    </p>
+
+                    <ul className="space-y-1 mb-4">
                       {anomaly.details.map((d, j) => (
                         <li
                           key={j}
-                          className="text-xs text-surface-600 flex items-start gap-2"
+                          className="text-sm text-surface-600 flex items-start gap-2"
                         >
-                          <span className="w-1 h-1 rounded-full bg-surface-400 mt-1.5 shrink-0" />
+                          <span className="w-1 h-1 rounded-full bg-surface-400 mt-2 shrink-0" />
                           {d}
                         </li>
                       ))}
                     </ul>
-                  </div>
 
-                  {/* Confidence indicator */}
-                  <div className="flex items-start gap-2 bg-white/40 rounded-lg p-3 mb-4">
-                    <HelpCircle
-                      size={14}
-                      className="text-surface-400 mt-0.5 shrink-0"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xs font-semibold text-surface-600">
-                          Confidence:
+                    <div className="flex items-center gap-3 pt-3 border-t border-surface-100">
+                      {isActioned ? (
+                        <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-success-50 text-success-700 text-sm font-semibold">
+                          <CheckCircle2 size={14} />
+                          Task created
                         </span>
-                        <span
-                          className={clsx(
-                            "text-xs font-bold uppercase",
-                            anomaly.confidence === "high"
-                              ? "text-success-600"
-                              : (anomaly.confidence as string) === "medium"
-                                ? "text-warning-600"
-                                : "text-danger-600"
-                          )}
+                      ) : (
+                        <button
+                          onClick={() => handleAction(anomaly.id)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-alhena-500 text-white text-sm font-semibold hover:bg-alhena-600 transition-colors"
                         >
-                          {anomaly.confidence}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-surface-500">
-                        {
-                          confidenceExplanations[
-                            anomaly.confidence as keyof typeof confidenceExplanations
-                          ]
-                        }
-                      </p>
+                          {anomaly.suggestedAction}
+                          <ArrowRight size={14} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDismiss(anomaly.id)}
+                        className="px-4 py-2 rounded-full border border-surface-200 text-sm font-medium text-surface-600 hover:bg-surface-50 transition-colors"
+                      >
+                        Dismiss
+                      </button>
+                      <span className="text-sm text-surface-500 ml-auto">
+                        {anomaly.affectedMetric}
+                      </span>
                     </div>
                   </div>
+                </motion.article>
+              );
+            })}
+          </AnimatePresence>
 
-                  {/* Impact + Action */}
-                  <div className="flex items-center gap-3">
-                    <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-900 text-white text-sm font-semibold hover:bg-surface-800 transition-colors">
-                      {anomaly.suggestedAction}
-                      <ArrowRight size={14} />
-                    </button>
-                    <button className="px-4 py-2 rounded-lg border border-surface-300 text-sm font-medium text-surface-600 hover:bg-white transition-colors">
-                      Dismiss
-                    </button>
-                    <span className="text-xs text-surface-400 ml-auto">
-                      Affects: {anomaly.affectedMetric}
-                    </span>
-                  </div>
-                </div>
-              </div>
+          {visibleAnomalies.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-surface-0 rounded-xl border border-surface-200 px-5 py-8 text-center"
+            >
+              <CheckCircle2
+                size={32}
+                className="text-success-500 mx-auto mb-3"
+              />
+              <p className="text-sm font-semibold text-surface-800">
+                All clear
+              </p>
+              <p className="text-sm text-surface-500 mt-1">
+                No active alerts right now. Alhena is monitoring.
+              </p>
             </motion.div>
-          );
-        })}
-      </section>
+          )}
+        </div>
+      </CollapsibleSection>
 
-      {/* Resolved state example */}
-      <section>
-        <h2 className="text-sm font-bold uppercase tracking-wider text-surface-400 mb-4">
-          Recently resolved
-        </h2>
+      {/* Recently resolved */}
+      <CollapsibleSection title="Recently resolved">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="rounded-xl border border-surface-200 bg-white p-5"
+          transition={{ delay: 0.2 }}
+          className="rounded-xl border border-surface-200 bg-surface-0 px-5 py-4"
         >
           <div className="flex items-center gap-3">
-            <CheckCircle2 size={20} className="text-success-500" />
+            <CheckCircle2 size={20} className="text-success-600 shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-surface-700">
+              <p className="text-sm font-semibold text-surface-800">
                 Shipping FAQ content gap filled
               </p>
-              <p className="text-xs text-surface-400 mt-0.5">
+              <p className="text-sm text-surface-600">
                 Resolved 5 days ago - Added missing international shipping info
-                to knowledge base
               </p>
             </div>
-            <span className="text-xs text-success-600 font-medium bg-success-50 px-2 py-1 rounded-full">
+            <span className="text-sm text-success-700 font-semibold bg-success-50 px-3 py-1 rounded-full shrink-0">
               Escalations down 12%
             </span>
           </div>
         </motion.div>
-      </section>
+      </CollapsibleSection>
 
-      {/* Empty state hint */}
+      {/* Monitoring status footer */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="bg-surface-50 rounded-xl border border-surface-200 p-6 text-center"
+        transition={{ delay: 0.4 }}
+        className="bg-surface-50 rounded-xl border border-surface-200 px-5 py-4 flex items-center gap-3"
+        role="status"
       >
-        <Sparkles size={24} className="text-surface-300 mx-auto mb-2" />
+        <Sparkles size={18} className="text-surface-400 shrink-0" />
         <p className="text-sm text-surface-500">
-          Alhena continuously monitors your account for anomalies, content
-          conflicts, and performance risks. Alerts appear here when action is
-          needed.
+          Alhena continuously monitors for anomalies, content conflicts, and
+          performance risks. Alerts appear here when action is needed.
         </p>
       </motion.div>
+
+      <Toast
+        message={toast.message}
+        visible={toast.visible}
+        onClose={toast.hide}
+      />
     </div>
   );
 }

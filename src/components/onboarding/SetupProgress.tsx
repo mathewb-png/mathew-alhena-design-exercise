@@ -42,7 +42,7 @@ const statusConfig: Record<
     iconBg: "bg-alhena-500 text-white",
   },
   pending: {
-    bg: "bg-white",
+    bg: "bg-surface-0",
     border: "border-surface-200",
     text: "text-surface-500",
     iconBg: "bg-surface-100 text-surface-400",
@@ -76,7 +76,7 @@ export function SetupProgress({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="bg-white rounded-2xl border border-surface-200 p-6"
+        className="bg-surface-0 rounded-2xl border border-surface-200 p-6"
       >
         <div className="flex items-center justify-between mb-4">
           <div>

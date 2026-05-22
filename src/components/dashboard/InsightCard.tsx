@@ -72,7 +72,7 @@ export function InsightCard({ insight, index }: InsightCardProps) {
           className={clsx(
             "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5",
             config.color,
-            "bg-white/80"
+            "bg-surface-0/80"
           )}
         >
           <Icon size={18} />
@@ -89,7 +89,7 @@ export function InsightCard({ insight, index }: InsightCardProps) {
               {config.label}
             </span>
             {insight.confidence !== "high" && (
-              <span className="text-[10px] font-medium text-surface-400 bg-white/60 px-1.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-medium text-surface-400 bg-surface-0/60 px-1.5 py-0.5 rounded-full">
                 {insight.confidence} confidence
               </span>
             )}
@@ -131,7 +131,7 @@ export function InsightCard({ insight, index }: InsightCardProps) {
 
           {insight.recommendedAction && (
             <div className="flex items-center gap-2 pt-2 border-t border-black/5">
-              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-xs font-semibold text-surface-800 hover:bg-surface-100 shadow-sm transition-all">
+              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-0 text-xs font-semibold text-surface-800 hover:bg-surface-100 shadow-sm transition-all">
                 {insight.actionLabel || "Take action"}
                 <ArrowRight size={13} />
               </button>

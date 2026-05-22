@@ -22,21 +22,21 @@ export function HealthScore({ health }: HealthScoreProps) {
     health.score >= 80
       ? "stroke-success-500"
       : health.score >= 60
-        ? "stroke-warning-500"
+        ? "stroke-alhena-500"
         : "stroke-danger-500";
 
   const bgColor =
     health.score >= 80
       ? "bg-success-50"
       : health.score >= 60
-        ? "bg-warning-50"
+        ? "bg-alhena-50"
         : "bg-danger-50";
 
   const labelColor =
     health.score >= 80
       ? "text-success-700 bg-success-100"
       : health.score >= 60
-        ? "text-warning-700 bg-warning-100"
+        ? "text-alhena-700 bg-alhena-100"
         : "text-danger-700 bg-danger-100";
 
   const TrendIcon =

@@ -19,7 +19,7 @@ export function PreviewCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
-      className="bg-white rounded-xl border border-dashed border-surface-300 p-5 relative overflow-hidden group hover:border-alhena-300 transition-colors"
+      className="bg-surface-0 rounded-xl border border-dashed border-surface-300 p-5 relative overflow-hidden group hover:border-alhena-300 transition-colors"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-surface-50/50 to-alhena-50/30 opacity-0 group-hover:opacity-100 transition-opacity" />
 
