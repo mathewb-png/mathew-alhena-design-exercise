@@ -108,7 +108,7 @@ export function DashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: i * 0.04 }}
                 className={clsx(
-                  "bg-white rounded-2xl border p-5 transition-all",
+                  "bg-surface-0 rounded-2xl border p-5 transition-all",
                   isNeg ? "border-danger-200" : "border-surface-200"
                 )}
               >
@@ -184,7 +184,7 @@ export function DashboardPage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
-          className="bg-white rounded-xl border border-surface-200 overflow-hidden"
+          className="bg-surface-0 rounded-xl border border-surface-200 overflow-hidden"
         >
           <div className="px-5 py-3 border-b border-surface-100 flex items-center gap-2">
             <Sparkles size={16} className="text-alhena-500" />
@@ -317,7 +317,7 @@ export function DashboardPage() {
               .map((m) => (
                 <div
                   key={m.id}
-                  className="bg-white rounded-xl border border-surface-200 p-4"
+                  className="bg-surface-0 rounded-xl border border-surface-200 p-4"
                 >
                   <p className="text-sm font-medium text-surface-600 mb-2">
                     {m.label}
@@ -354,7 +354,7 @@ export function DashboardPage() {
         id="action-heading"
         headingMargin="mb-3"
       >
-        <div className="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+        <div className="bg-surface-0 rounded-2xl border border-surface-200 overflow-hidden">
           {/* Priority action - highlighted row */}
           <motion.button
             initial={{ opacity: 0, y: 8 }}
@@ -446,7 +446,7 @@ export function DashboardPage() {
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.4 }}
-          className="bg-white rounded-2xl border border-surface-200 px-5 py-4"
+          className="bg-surface-0 rounded-2xl border border-surface-200 px-5 py-4"
         >
           <div className="flex items-center justify-between">
             <p className="text-sm text-surface-600">
