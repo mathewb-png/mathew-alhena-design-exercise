@@ -425,6 +425,62 @@ export function LandingPage() {
             </div>
           </div>
 
+          {/* Design tradeoffs */}
+          <div className="mb-8">
+            <h3 className="text-sm font-bold text-surface-800 mb-4">
+              Design tradeoffs
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                {
+                  gave: "Comprehensive chart grid",
+                  got: "Narrative-first insights",
+                  why: "A VP with 10 minutes needs conclusions, not raw charts. Charts exist on demand (L3) but the default view leads with AI-generated summaries.",
+                },
+                {
+                  gave: "Equal metric weighting",
+                  got: "Revenue + CX hero pairing",
+                  why: "Showing 4 hero metrics (2 revenue, 2 support) surfaces the revenue-experience tension immediately. Remaining 7 metrics are one click away.",
+                },
+                {
+                  gave: "Separate alerts page only",
+                  got: "Inline risk signals in insights",
+                  why: "Risks appear in the main dashboard feed so they are never missed. A dedicated Alerts page exists for deeper investigation but is not required to notice a problem.",
+                },
+                {
+                  gave: "Generic empty state",
+                  got: "Guided onboarding with preview",
+                  why: "New accounts see a structured setup flow with progress, milestones, and a sample dashboard. This builds confidence that the product will deliver value once launched.",
+                },
+              ].map((t, i) => (
+                <div
+                  key={i}
+                  className="bg-surface-50 border border-surface-200 rounded-xl p-5"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-danger-500">
+                      Gave up
+                    </span>
+                    <span className="text-[12px] text-surface-700 font-medium">
+                      {t.gave}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-success-600">
+                      Got
+                    </span>
+                    <span className="text-[12px] text-surface-700 font-medium">
+                      {t.got}
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-surface-500 leading-relaxed">
+                    {t.why}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </motion.div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { useState, useRef } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { TopBar } from "../components/layout/TopBar";
@@ -18,6 +19,8 @@ export function DrilldownPage() {
   const navigate = useNavigate();
   const { darkMode } = useTheme();
   const toast = useToast();
+  const [activeMetricId, setActiveMetricId] = useState<string>("escalations");
+  const analysisRef = useRef<HTMLDivElement>(null);
   const { metric, timeSeries, breakdowns, aiExplanation } =
     escalationDrilldown;
 
@@ -29,8 +32,10 @@ export function DrilldownPage() {
     ["action_1", "action_2"].includes(a.id)
   );
 
-  const handleMetricClick = () => {
-    toast.show("Opening detailed metric view...");
+  const handleMetricClick = (metricId: string, label: string) => {
+    setActiveMetricId(metricId);
+    toast.show(`Viewing ${label} analysis`);
+    analysisRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -68,19 +73,26 @@ export function DrilldownPage() {
         titleRight={<span>vs. prior 30 days</span>}
       >
         <div className="grid grid-cols-3 gap-5">
-          <MetricCard metric={metric} index={0} onClick={handleMetricClick} />
+          <MetricCard
+            metric={metric}
+            index={0}
+            active={activeMetricId === metric.id}
+            onClick={() => handleMetricClick(metric.id, metric.label)}
+          />
           {relatedMetrics.map((m, i) => (
             <MetricCard
               key={m.id}
               metric={m}
               index={i + 1}
-              onClick={handleMetricClick}
+              active={activeMetricId === m.id}
+              onClick={() => handleMetricClick(m.id, m.label)}
             />
           ))}
         </div>
       </CollapsibleSection>
 
       {/* Trend and breakdown */}
+      <div ref={analysisRef} />
       <CollapsibleSection title="Trend and breakdown">
         <div className="grid grid-cols-2 gap-6">
           <DrilldownChart

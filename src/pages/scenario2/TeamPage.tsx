@@ -287,7 +287,7 @@ export function TeamPage() {
                   ? `Enter email for ${inviteLabel}`
                   : "colleague@company.com"
               }
-              className="flex-1 px-4 py-2.5 rounded-full border border-surface-200 text-[0.875rem] text-surface-900 placeholder:text-surface-400 focus:outline-none focus:border-alhena-300 focus:ring-2 focus:ring-alhena-100 transition-all"
+              className="flex-1 px-4 py-2.5 rounded-full border border-surface-200 bg-surface-0 text-[0.875rem] text-surface-900 placeholder:text-surface-400 focus:outline-none focus:border-alhena-300 focus:ring-2 focus:ring-alhena-100 transition-all"
             />
             <select
               value={inviteRole}

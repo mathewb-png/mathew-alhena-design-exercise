@@ -9,9 +9,10 @@ interface MetricCardProps {
   metric: Metric;
   index: number;
   onClick?: () => void;
+  active?: boolean;
 }
 
-export function MetricCard({ metric, index, onClick }: MetricCardProps) {
+export function MetricCard({ metric, index, onClick, active }: MetricCardProps) {
   const { darkMode } = useTheme();
   const TrendIcon =
     metric.trend === "up"
@@ -52,7 +53,10 @@ export function MetricCard({ metric, index, onClick }: MetricCardProps) {
       transition={{ duration: 0.3, delay: index * 0.05 }}
       onClick={onClick}
       className={clsx(
-        "bg-surface-0 rounded-2xl border border-surface-200 p-5 hover:shadow-md hover:border-surface-300 transition-all duration-200 group",
+        "bg-surface-0 rounded-2xl border p-5 hover:shadow-md transition-all duration-200 group",
+        active
+          ? "border-alhena-500 ring-2 ring-alhena-500/20 shadow-md"
+          : "border-surface-200 hover:border-surface-300",
         onClick && "cursor-pointer"
       )}
     >
