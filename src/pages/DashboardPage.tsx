@@ -13,7 +13,6 @@ import {
   Mail,
   Download,
   ChevronDown,
-  ChevronRight,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
@@ -25,7 +24,6 @@ import { insights, actionItems } from "../data/insights";
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const [showAllMetrics, setShowAllMetrics] = useState(false);
   const [copied, setCopied] = useState(false);
   const [expandedInsights, setExpandedInsights] = useState<number[]>([0]);
 
@@ -177,7 +175,7 @@ export function DashboardPage() {
       {/* ── THIS WEEK'S INSIGHTS ── */}
       <CollapsibleSection
         title="This week's insights"
-        defaultOpen={false}
+        defaultOpen={true}
         id="insights-heading"
       >
         <motion.div
@@ -290,67 +288,50 @@ export function DashboardPage() {
       </CollapsibleSection>
 
       {/* ── ALL METRICS ── */}
-      <section aria-labelledby="metrics-heading">
-        <button
-          onClick={() => setShowAllMetrics(!showAllMetrics)}
-          className="flex items-center gap-2 text-sm font-bold text-surface-700 hover:text-surface-900 transition-colors mb-5"
-          aria-expanded={showAllMetrics}
-          id="metrics-heading"
-        >
-          {showAllMetrics ? (
-            <ChevronDown size={16} />
-          ) : (
-            <ChevronRight size={16} />
-          )}
-          All metrics (
-          {metrics.filter((m) => !hero.some((h) => h.id === m.id)).length})
-        </button>
-
-        {showAllMetrics && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="grid grid-cols-4 gap-4"
-          >
-            {metrics
-              .filter((m) => !hero.some((h) => h.id === m.id))
-              .map((m) => (
-                <div
-                  key={m.id}
-                  className="bg-surface-0 rounded-xl border border-surface-200 p-4"
-                >
-                  <p className="text-sm font-medium text-surface-600 mb-2">
-                    {m.label}
-                  </p>
-                  <div className="flex items-end justify-between">
-                    <span className="text-xl font-bold text-surface-900">
-                      {m.value}
-                    </span>
-                    <span
-                      className={clsx(
-                        "text-sm font-semibold flex items-center gap-0.5",
-                        m.sentiment === "negative"
-                          ? "text-danger-600"
-                          : m.sentiment === "warning"
-                            ? "text-warning-700"
-                            : m.sentiment === "positive"
-                              ? "text-success-600"
-                              : "text-surface-600"
-                      )}
-                    >
-                      {m.change}
-                    </span>
-                  </div>
+      <CollapsibleSection
+        title={`All metrics (${metrics.filter((m) => !hero.some((h) => h.id === m.id)).length})`}
+        defaultOpen={true}
+        id="metrics-heading"
+      >
+        <div className="grid grid-cols-4 gap-4">
+          {metrics
+            .filter((m) => !hero.some((h) => h.id === m.id))
+            .map((m) => (
+              <div
+                key={m.id}
+                className="bg-surface-0 rounded-xl border border-surface-200 p-4"
+              >
+                <p className="text-sm font-medium text-surface-600 mb-2">
+                  {m.label}
+                </p>
+                <div className="flex items-end justify-between">
+                  <span className="text-xl font-bold text-surface-900">
+                    {m.value}
+                  </span>
+                  <span
+                    className={clsx(
+                      "text-sm font-semibold flex items-center gap-0.5",
+                      m.sentiment === "negative"
+                        ? "text-danger-600"
+                        : m.sentiment === "warning"
+                          ? "text-warning-700"
+                          : m.sentiment === "positive"
+                            ? "text-success-600"
+                            : "text-surface-600"
+                    )}
+                  >
+                    {m.change}
+                  </span>
                 </div>
-              ))}
-          </motion.div>
-        )}
-      </section>
+              </div>
+            ))}
+        </div>
+      </CollapsibleSection>
 
       {/* ── ACT ON FIRST ── */}
       <CollapsibleSection
         title="Act on first"
-        defaultOpen={false}
+        defaultOpen={true}
         id="action-heading"
         headingMargin="mb-3"
       >
@@ -439,7 +420,7 @@ export function DashboardPage() {
       {/* ── SHARE ── */}
       <CollapsibleSection
         title="Share with your team"
-        defaultOpen={false}
+        defaultOpen={true}
         id="share-heading"
       >
         <motion.div
