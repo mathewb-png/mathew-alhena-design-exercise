@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -14,18 +15,21 @@ import { TopBar } from "../../components/layout/TopBar";
 import { Toast } from "../../components/common/Toast";
 import { useToast } from "../../hooks/useToast";
 import { useOnboarding } from "../../context/OnboardingContext";
+import { ConfettiCelebration } from "../../components/common/ConfettiCelebration";
 
 export function LaunchReadinessPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const { steps, currentStep, overallProgress, completedCount, launchAlhena, launched } = useOnboarding();
   const totalCount = steps.length;
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleStepAction = (step: (typeof steps)[0]) => {
     if (step.id === 7 && step.status === "in_progress") {
       toast.show("Alhena is launching!");
       setTimeout(() => {
         launchAlhena();
+        setShowConfetti(true);
         toast.show("Alhena is live! Your storefront AI is now serving customers.");
       }, 1500);
       return;
@@ -284,6 +288,12 @@ export function LaunchReadinessPage() {
           </div>
         </motion.div>
       )}
+
+      <ConfettiCelebration
+        active={showConfetti}
+        onComplete={() => setShowConfetti(false)}
+        duration={5000}
+      />
 
       <Toast message={toast.message} visible={toast.visible} onClose={toast.hide} />
     </div>
