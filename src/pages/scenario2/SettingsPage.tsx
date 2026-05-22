@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Building2,
@@ -27,7 +28,26 @@ type EscalationMode = "conservative" | "balanced" | "aggressive";
 
 export function Scenario2SettingsPage() {
   const toast = useToast();
+  const location = useLocation();
   const { setBrandVoiceConfigured, setAiBehaviorsConfigured } = useOnboarding();
+
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const [highlightedSection, setHighlightedSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    const hash = location.hash.replace("#", "");
+    if (!hash) return;
+    const timeout = setTimeout(() => {
+      const el = sectionRefs.current[hash];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        setHighlightedSection(hash);
+        setTimeout(() => setHighlightedSection(null), 2500);
+      }
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [location.hash]);
 
   const [industry, setIndustry] = useState("ecommerce");
   const [timezone, setTimezone] = useState("us-pacific");
@@ -117,6 +137,7 @@ export function Scenario2SettingsPage() {
       </motion.div>
 
       {/* Company profile */}
+      <div ref={(el) => { sectionRefs.current["company-profile"] = el; }} id="company-profile" className={clsx("rounded-2xl transition-shadow duration-500", highlightedSection === "company-profile" && "shadow-[0_0_0_2px_rgba(99,146,234,0.4)]")}>
       <CollapsibleSection title="Company profile">
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -211,8 +232,10 @@ export function Scenario2SettingsPage() {
           </div>
         </motion.div>
       </CollapsibleSection>
+      </div>
 
       {/* AI Personality */}
+      <div ref={(el) => { sectionRefs.current["ai-personality"] = el; }} id="ai-personality" className={clsx("rounded-2xl transition-shadow duration-500", highlightedSection === "ai-personality" && "shadow-[0_0_0_2px_rgba(99,146,234,0.4)]")}>
       <CollapsibleSection title="AI personality">
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -269,8 +292,10 @@ export function Scenario2SettingsPage() {
           </div>
         </motion.div>
       </CollapsibleSection>
+      </div>
 
       {/* Escalation rules */}
+      <div ref={(el) => { sectionRefs.current["escalation-behavior"] = el; }} id="escalation-behavior" className={clsx("rounded-2xl transition-shadow duration-500", highlightedSection === "escalation-behavior" && "shadow-[0_0_0_2px_rgba(99,146,234,0.4)]")}>
       <CollapsibleSection title="Escalation behavior">
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -341,8 +366,10 @@ export function Scenario2SettingsPage() {
           </div>
         </motion.div>
       </CollapsibleSection>
+      </div>
 
       {/* Notifications during onboarding */}
+      <div ref={(el) => { sectionRefs.current["onboarding-notifications"] = el; }} id="onboarding-notifications" className={clsx("rounded-2xl transition-shadow duration-500", highlightedSection === "onboarding-notifications" && "shadow-[0_0_0_2px_rgba(99,146,234,0.4)]")}>
       <CollapsibleSection title="Onboarding notifications">
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -370,8 +397,10 @@ export function Scenario2SettingsPage() {
           </div>
         </motion.div>
       </CollapsibleSection>
+      </div>
 
       {/* Privacy & data */}
+      <div ref={(el) => { sectionRefs.current["privacy-data"] = el; }} id="privacy-data" className={clsx("rounded-2xl transition-shadow duration-500", highlightedSection === "privacy-data" && "shadow-[0_0_0_2px_rgba(99,146,234,0.4)]")}>
       <CollapsibleSection title="Privacy & data access">
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -430,6 +459,7 @@ export function Scenario2SettingsPage() {
           </div>
         </motion.div>
       </CollapsibleSection>
+      </div>
 
       <Toast message={toast.message} visible={toast.visible} onClose={toast.hide} />
     </div>

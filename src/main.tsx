@@ -16,6 +16,7 @@ import { PreviewDashboardPage } from "./pages/scenario2/PreviewDashboardPage";
 import { TeamPage } from "./pages/scenario2/TeamPage";
 import { Scenario2SettingsPage } from "./pages/scenario2/SettingsPage";
 import { Scenario2HelpPage } from "./pages/scenario2/HelpPage";
+import { ConnectStorePage } from "./pages/scenario2/ConnectStorePage";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
@@ -37,6 +38,7 @@ createRoot(document.getElementById("root")!).render(
         {/* Scenario 2: New Account Onboarding */}
         <Route path="/scenario-2" element={<Scenario2Shell />}>
           <Route index element={<LaunchReadinessPage />} />
+          <Route path="connect-store" element={<ConnectStorePage />} />
           <Route path="integrations" element={<IntegrationsPage />} />
           <Route path="knowledge" element={<KnowledgeBasePage />} />
           <Route path="preview" element={<PreviewDashboardPage />} />

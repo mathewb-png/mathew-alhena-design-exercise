@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useState, useMemo, useEffect, useRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Store,
@@ -68,6 +68,13 @@ export interface OnboardingStep {
   actionRoute?: string;
 }
 
+export interface CompletedStepInfo {
+  stepLabel: string;
+  nextStepLabel: string | null;
+  nextStepRoute: string | null;
+  allComplete: boolean;
+}
+
 interface OnboardingState {
   integrations: Integration[];
   connectIntegration: (id: string) => void;
@@ -99,6 +106,9 @@ interface OnboardingState {
   currentStep: OnboardingStep | undefined;
   overallProgress: number;
   completedCount: number;
+
+  lastCompletedStep: CompletedStepInfo | null;
+  clearCompletedNotification: () => void;
 }
 
 // ── Initial data ───────────────────────────────────────────────────────
@@ -109,10 +119,9 @@ const initialIntegrations: Integration[] = [
     name: "Shopify",
     category: "Ecommerce Platform",
     description: "Product catalog, orders, and customer data",
-    status: "connected",
+    status: "pending",
     logo: "S",
-    connectedAt: "May 20, 2026",
-    detail: "1,247 products synced, 3 collections",
+    detail: "Connect your Shopify store to sync products and orders",
     required: true,
   },
   {
@@ -236,11 +245,14 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   const connectIntegration = (id: string) => {
     setIntegrations((prev) =>
-      prev.map((i) =>
-        i.id === id
-          ? { ...i, status: "connected" as const, connectedAt: "Just now" }
-          : i
-      )
+      prev.map((i) => {
+        if (i.id !== id) return i;
+        const extra =
+          id === "shopify"
+            ? { detail: "1,247 products synced, 3 collections", connectedAt: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) }
+            : { connectedAt: "Just now" };
+        return { ...i, status: "connected" as const, ...extra };
+      })
     );
   };
 
@@ -310,7 +322,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     const invitedCount = teamMembers.length - 1;
     const plural = invitedCount !== 1 ? "s" : "";
 
-    const step1Status: OnboardingStep["status"] = shopifyConnected ? "complete" : "pending";
+    const step1Status: OnboardingStep["status"] = shopifyConnected ? "complete" : "in_progress";
 
     const step2Status: OnboardingStep["status"] =
       integrationProgress === 100 ? "complete" : integrationProgress > 0 ? "in_progress" : "pending";
@@ -354,6 +366,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         time: step1Status === "complete" ? "Done" : "~5 min",
         owner: "You",
         detail: step1Status === "complete" ? "1,247 products synced from Shopify" : "Connect your Shopify store to get started",
+        action: shopifyConnected ? undefined : "Connect store",
+        actionRoute: shopifyConnected ? undefined : "/scenario-2/connect-store",
       },
       {
         id: 2,
@@ -402,7 +416,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
             ? "Knowledge base ready - configure your brand voice"
             : "Unlocks after knowledge base setup",
         action: brandVoiceConfigured ? undefined : "Configure voice",
-        actionRoute: brandVoiceConfigured ? undefined : "/scenario-2/settings",
+        actionRoute: brandVoiceConfigured ? undefined : "/scenario-2/settings#ai-personality",
       },
       {
         id: 5,
@@ -419,7 +433,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
             ? "Ready to configure AI behaviors"
             : "Requires brand voice configuration",
         action: aiBehaviorsConfigured ? undefined : "Set up rules",
-        actionRoute: aiBehaviorsConfigured ? undefined : "/scenario-2/settings",
+        actionRoute: aiBehaviorsConfigured ? undefined : "/scenario-2/settings#escalation-behavior",
       },
       {
         id: 6,
@@ -460,6 +474,38 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const completedCount = steps.filter((s) => s.status === "complete").length;
   const overallProgress = Math.round(steps.reduce((acc, s) => acc + s.progress, 0) / steps.length);
 
+  // ── Step-completion transition detection ──
+  const [lastCompletedStep, setLastCompletedStep] = useState<CompletedStepInfo | null>(null);
+  const prevStatusesRef = useRef<OnboardingStep["status"][]>([]);
+
+  useEffect(() => {
+    const prev = prevStatusesRef.current;
+    if (prev.length === 0) {
+      prevStatusesRef.current = steps.map((s) => s.status);
+      return;
+    }
+
+    for (let i = 0; i < steps.length; i++) {
+      if (prev[i] !== "complete" && steps[i].status === "complete") {
+        const nextStep = steps.slice(i + 1).find(
+          (s) => s.status === "in_progress" || s.status === "pending"
+        );
+        const allComplete = steps.every((s) => s.status === "complete");
+        setLastCompletedStep({
+          stepLabel: steps[i].label,
+          nextStepLabel: nextStep?.label ?? null,
+          nextStepRoute: nextStep?.actionRoute ?? null,
+          allComplete,
+        });
+        break;
+      }
+    }
+
+    prevStatusesRef.current = steps.map((s) => s.status);
+  }, [steps]);
+
+  const clearCompletedNotification = () => setLastCompletedStep(null);
+
   const value: OnboardingState = {
     integrations,
     connectIntegration,
@@ -491,6 +537,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     currentStep,
     overallProgress,
     completedCount,
+
+    lastCompletedStep,
+    clearCompletedNotification,
   };
 
   return (

@@ -3,6 +3,7 @@ import { clsx } from "clsx";
 import { Scenario2Sidebar } from "./Scenario2Sidebar";
 import { OnboardingProvider } from "../../context/OnboardingContext";
 import { ThemeProvider, useTheme } from "../../context/ThemeContext";
+import { StepCompleteNotification } from "../common/StepCompleteNotification";
 
 function Scenario2Content() {
   const { darkMode } = useTheme();
@@ -12,6 +13,7 @@ function Scenario2Content() {
       <main className="ml-[240px] p-8 max-w-[1440px]">
         <Outlet />
       </main>
+      <StepCompleteNotification />
     </div>
   );
 }
